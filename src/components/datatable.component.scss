@@ -1,0 +1,30 @@
+
+::ng-deep {
+  .resize-handle, .resize-handle--not-resizable {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    padding: 0 4px;
+    visibility: hidden;
+  }
+
+  .resize-handle {
+    cursor: ew-resize;
+  }
+
+  &.resizeable:hover {
+    .resize-handle{
+      visibility: visible;
+    }
+  }
+
+  &:hover {
+    .resize-handle--not-resizable {
+      visibility: visible;
+    }
+  }
+}
+

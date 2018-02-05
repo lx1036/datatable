@@ -11,7 +11,7 @@ import {Directive, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChan
  *
  */
 @Directive({
-  selector: '[draggable]'
+  selector: '[drag]'
 })
 export class DraggableDirective implements OnDestroy, OnChanges {
 

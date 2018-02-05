@@ -10,6 +10,8 @@ import {SelectionType} from './header/header.component';
 import {DimensionsHelper} from '../services/dimensions-helper.service';
 import {ScrollbarHelper} from '../services/scrollbar-helper.service';
 import {adjustColumnWidths, forceFillColumnWidths} from '../utils/math';
+import {TableColumn} from '../types/table-column.type';
+import {sortRows} from '../utils/sort';
 
 
 @Component({
@@ -97,6 +99,7 @@ export class DatatableComponent implements OnInit, DoCheck, AfterViewInit, After
    *  ]
    */
   @Input() groupedRows: any[];
+
   _internalColumns: TableColumn[];
   /**
    * The minimum header height in pixels.
@@ -119,7 +122,6 @@ export class DatatableComponent implements OnInit, DoCheck, AfterViewInit, After
     pagerPrevious: 'datatable-icon-prev',
     pagerNext: 'datatable-icon-skip'
   };
-  //endregion
   /**
    * Returns if all rows are selected.
    */
@@ -260,7 +262,45 @@ export class DatatableComponent implements OnInit, DoCheck, AfterViewInit, After
 
 ////////////////////Body//////////////////////////////////////
   //<editor-fold desc="Body">
+  _rows: any[];
+  _internalRows: any[];
+  _groupRowsBy: string;
+  /**
+   * If the table should use external sorting or
+   * the built-in basic sorting.
+   */
+  @Input() externalSorting: boolean = false;
+  /**
+   * Rows that are displayed in the table.
+   */
+  @Input() set rows(val: any) {
+    this._rows = val;
 
+    if (val) {
+      this._internalRows = [...val];
+    }
+
+    // auto sort on new updates
+    if (!this.externalSorting) {
+      this._internalRows = sortRows(this._internalRows, this._internalColumns, this.sorts);
+    }
+
+    // recalculate sizes/etc
+    this.recalculate();
+
+    if (this._rows && this._groupRowsBy) {
+      // If a column has been specified in _groupRowsBy created a new array with the data grouped by that row
+      this.groupedRows = this.groupArrayBy(this._rows, this._groupRowsBy);
+    }
+
+    this.cd.markForCheck();
+  }
+  /**
+   * Gets the rows.
+   */
+  get rows(): any {
+    return this._rows;
+  }
   /**
    * Enable vertical scrollbars
    */
@@ -536,11 +576,7 @@ export class DatatableComponent implements OnInit, DoCheck, AfterViewInit, After
 
 
 
-  /**
-   * If the table should use external sorting or
-   * the built-in basic sorting.
-   */
-  @Input() externalSorting: boolean = false;
+
 
   /**
    * Lifecycle hook that is called after a component's
@@ -574,217 +610,5 @@ export class DatatableComponent implements OnInit, DoCheck, AfterViewInit, After
 }
 
 
-/**
- * Column Type
- * @type {object}
- */
-export interface TableColumn {
 
-  /**
-   * Internal unique id
-   *
-   * @type {string}
-   * @memberOf TableColumn
-   */
-  $$id?: string;
 
-  /**
-   * Internal for column width distributions
-   *
-   * @type {number}
-   * @memberOf TableColumn
-   */
-  $$oldWidth?: number;
-
-  /**
-   * Internal for setColumnDefaults
-   *
-   * @type {ValueGetter}
-   * @memberOf TableColumn
-   */
-  $$valueGetter?: ValueGetter;
-
-  /**
-   * Determines if column is checkbox
-   *
-   * @type {boolean}
-   * @memberOf TableColumn
-   */
-  checkboxable?: boolean;
-
-  /**
-   * Determines if the column is frozen to the left
-   *
-   * @type {boolean}
-   * @memberOf TableColumn
-   */
-  frozenLeft?: boolean;
-
-  /**
-   * Determines if the column is frozen to the right
-   *
-   * @type {boolean}
-   * @memberOf TableColumn
-   */
-  frozenRight?: boolean;
-
-  /**
-   * The grow factor relative to other columns. Same as the flex-grow
-   * API from http =//www.w3.org/TR/css3-flexbox/. Basically;
-   * take any available extra width and distribute it proportionally
-   * according to all columns' flexGrow values.
-   *
-   * @type {number}
-   * @memberOf TableColumn
-   */
-  flexGrow?: number;
-
-  /**
-   * Min width of the column
-   *
-   * @type {number}
-   * @memberOf TableColumn
-   */
-  minWidth?: number;
-
-  /**
-   * Max width of the column
-   *
-   * @type {number}
-   * @memberOf TableColumn
-   */
-  maxWidth?: number;
-
-  /**
-   * The default width of the column, in pixels
-   *
-   * @type {number}
-   * @memberOf TableColumn
-   */
-  width?: number;
-
-  /**
-   * Can the column be resized
-   *
-   * @type {boolean}
-   * @memberOf TableColumn
-   */
-  resizeable?: boolean;
-
-  /**
-   * Custom sort comparator
-   *
-   * @type {*}
-   * @memberOf TableColumn
-   */
-  comparator?: any;
-
-  /**
-   * Custom pipe transforms
-   *
-   * @type {PipeTransform}
-   * @memberOf TableColumn
-   */
-  pipe?: PipeTransform;
-
-  /**
-   * Can the column be sorted
-   *
-   * @type {boolean}
-   * @memberOf TableColumn
-   */
-  sortable?: boolean;
-
-  /**
-   * Can the column be re-arranged by dragging
-   *
-   * @type {boolean}
-   * @memberOf TableColumn
-   */
-  draggable?: boolean;
-
-  /**
-   * Whether the column can automatically resize to fill space in the table.
-   *
-   * @type {boolean}
-   * @memberOf TableColumn
-   */
-  canAutoResize?: boolean;
-
-  /**
-   * Column name or label
-   *
-   * @type {string}
-   * @memberOf TableColumn
-   */
-  name?: string;
-
-  /**
-   * Property to bind to the row. Example:
-   *
-   * `someField` or `some.field.nested`, 0 (numeric)
-   *
-   * If left blank, will use the name as camel case conversion
-   *
-   * @type {TableColumnProp}
-   * @memberOf TableColumn
-   */
-  prop?: TableColumnProp;
-
-  /**
-   * Cell template ref
-   *
-   * @type {*}
-   * @memberOf TableColumn
-   */
-  cellTemplate?: any;
-
-  /**
-   * Header template ref
-   *
-   * @type {*}
-   * @memberOf TableColumn
-   */
-  headerTemplate?: any;
-
-  /**
-   * CSS Classes for the cell
-   *
-   *
-   * @memberOf TableColumn
-   */
-  cellClass?: string | ((data: any) => string|any);
-
-  /**
-   * CSS classes for the header
-   *
-   *
-   * @memberOf TableColumn
-   */
-  headerClass?: string | ((data: any) => string|any);
-
-  /**
-   * Header checkbox enabled
-   *
-   * @type {boolean}
-   * @memberOf TableColumn
-   */
-  headerCheckboxable?: boolean;
-
-}
-
-export enum SortType {
-  single = 'single',
-  multi = 'multi'
-}
-
-export enum ContextmenuType {
-  header = 'header',
-  body = 'body'
-}
-
-export enum ColumnMode {
-  standard = 'standard',
-  flex = 'flex',
-  force = 'force'
-}

@@ -1,4 +1,5 @@
-import {Component, Input} from '@angular/core';
+import {ChangeDetectorRef, Component, Input} from '@angular/core';
+import {TableColumn} from '../../types/table-column.type';
 
 
 @Component({
@@ -11,8 +12,7 @@ import {Component, Input} from '@angular/core';
         <input
           type="checkbox"
           [checked]="allRowsSelected"
-          (change)="select.emit(!allRowsSelected)"
-        />
+          (change)="select.emit(!allRowsSelected)"/>
       </label>
       <span
         *ngIf="!column.headerTemplate"
@@ -39,6 +39,19 @@ export class DataTableHeaderCellComponent {
   @Input() sortType: SortType;
   @Input() sortAscendingIcon: string;
   @Input() sortDescendingIcon: string;
+  @Input() selectionType: SelectionType;
+
+  private _column: TableColumn;
+
+  cellContext: any = {
+    column: this.column,
+    sortDir: this.sortDir,
+    sortFn: this.sortFn,
+    allRowsSelected: this.allRowsSelected,
+    selectFn: this.selectFn
+  };
+
+  constructor(private cd: ChangeDetectorRef) { }
 
   get isCheckboxable(): boolean {
     return this.column.checkboxable &&
