@@ -1,5 +1,5 @@
 
-import {Directive, EventEmitter, Input, OnChanges, OnDestroy, Output} from '@angular/core';
+import {Directive, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges} from '@angular/core';
 
 
 /**
@@ -15,6 +15,8 @@ import {Directive, EventEmitter, Input, OnChanges, OnDestroy, Output} from '@ang
 })
 export class DraggableDirective implements OnDestroy, OnChanges {
 
+
+
   @Input() dragEventTarget: any;
   @Input() dragModel: any;
   @Input() dragX: boolean = true;
@@ -23,4 +25,10 @@ export class DraggableDirective implements OnDestroy, OnChanges {
   @Output() dragStart: EventEmitter<any> = new EventEmitter();
   @Output() dragging: EventEmitter<any> = new EventEmitter();
   @Output() dragEnd: EventEmitter<any> = new EventEmitter();
+
+  ngOnChanges(changes: SimpleChanges): void {
+  }
+
+  ngOnDestroy(): void {
+  }
 }
