@@ -1,8 +1,9 @@
-
 /**
  * creates a shallow copy of the `rows` input and returns the sorted copy. this function
  * does not sort the `rows` argument in place
  */
+import {SortDirection, SortType} from '../types/table-column.type';
+
 export function sortRows(rows: any[], columns: any[], dirs: SortPropDir[]): any[] {
   if(!rows) return [];
   if(!dirs || !dirs.length || !columns) return [...rows];
@@ -92,4 +93,27 @@ export function orderByComparator(a: any, b: any): number {
 
   // equal each other
   return 0;
+}
+
+/**
+ * Gets the next sort direction
+ */
+export function nextSortDir(sortType: SortType, current: SortDirection): SortDirection | undefined {
+  if (sortType === SortType.single) {
+    if(current === SortDirection.asc) {
+      return SortDirection.desc;
+    } else {
+      return SortDirection.asc;
+    }
+  } else {
+    if(!current) {
+      return SortDirection.asc;
+    } else if(current === SortDirection.asc) {
+      return SortDirection.desc;
+    } else if(current === SortDirection.desc) {
+      return undefined;
+    }
+    // avoid TS7030: Not all code paths return a value.
+    return undefined;
+  }
 }

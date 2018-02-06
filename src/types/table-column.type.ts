@@ -220,3 +220,8 @@ export enum ColumnMode {
   flex = 'flex',
   force = 'force'
 }
+
+export enum SortDirection {
+  asc = 'asc',
+  desc = 'desc'
+}

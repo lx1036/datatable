@@ -1,5 +1,6 @@
-import {ChangeDetectorRef, Component, Input} from '@angular/core';
-import {TableColumn} from '../../types/table-column.type';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostBinding, HostListener, Input, Output} from '@angular/core';
+import {SelectionType, SortDirection, SortType, TableColumn} from '../../types/table-column.type';
+import {nextSortDir} from '../../utils/sort';
 
 
 @Component({
@@ -33,15 +34,24 @@ import {TableColumn} from '../../types/table-column.type';
         [class]="sortClass">
       </span>
     </div>
-  `
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableHeaderCellComponent {
-  @Input() sortType: SortType;
+
   @Input() sortAscendingIcon: string;
   @Input() sortDescendingIcon: string;
   @Input() selectionType: SelectionType;
 
+  @Output() select: EventEmitter<any> = new EventEmitter();
+  @Output() sort: EventEmitter<any> = new EventEmitter();
+  @Output() columnContextmenu = new EventEmitter<{ event: MouseEvent, column: any }>(false);
+
+
   private _column: TableColumn;
+
+  _allRowsSelected: boolean;
+
 
   cellContext: any = {
     column: this.column,
@@ -69,24 +79,121 @@ export class DataTableHeaderCellComponent {
     return this._column;
   }
 
-  @Input() set allRowsSelected(value) {
+  @Input() set allRowsSelected(value: boolean) {
     this._allRowsSelected = value;
     this.cellContext.allRowsSelected = value;
   }
-  get allRowsSelected() {
+  get allRowsSelected(): boolean {
     return this._allRowsSelected;
   }
-}
 
-export enum SortType {
-  single = 'single',
-  multi = 'multi'
-}
 
-export enum SelectionType {
-  single = 'single',
-  multi = 'multi',
-  multiClick = 'multiClick',
-  cell = 'cell',
-  checkbox = 'checkbox'
+
+//////////////////////Host//////////////////////////////////////
+//<editor-fold desc="Host">
+  @HostListener('contextmenu', ['$event'])
+  onContextmenu($event: MouseEvent): void {
+    this.columnContextmenu.emit({ event: $event, column: this.column });
+  }
+
+  @HostBinding('class')
+  get columnCssClasses(): any {
+    let cls = 'datatable-header-cell';
+
+    if (this.column.sortable) cls += ' sortable';
+    if (this.column.resizeable) cls += ' resizeable';
+    if (this.column.headerClass) {
+      if (typeof this.column.headerClass === 'string') {
+        cls += ' ' + this.column.headerClass;
+      } else if (typeof this.column.headerClass === 'function') {
+        const res = this.column.headerClass({
+          column: this.column
+        });
+
+        if (typeof res === 'string') {
+          cls += res;
+        } else if (typeof res === 'object') {
+          const keys = Object.keys(res);
+          for (const k of keys) {
+            if (res[k] === true) cls += ` ${k}`;
+          }
+        }
+      }
+    }
+
+    const sortDir = this.sortDir;
+    if (sortDir) {
+      cls += ` sort-active sort-${sortDir}`;
+    }
+
+    return cls;
+  }
+
+  @HostBinding('attr.title')
+  get name(): string {
+    // guaranteed to have a value by setColumnDefaults() in column-helper.ts
+    return this.column.headerTemplate === undefined ? this.column.name : undefined;
+  }
+
+  @HostBinding('style.minWidth.px')
+  get minWidth(): number {
+    return this.column.minWidth;
+  }
+
+  @HostBinding('style.maxWidth.px')
+  get maxWidth(): number {
+    return this.column.maxWidth;
+  }
+
+  @HostBinding('style.width.px')
+  get width(): number {
+    return this.column.width;
+  }
+
+  @HostBinding('style.height.px')
+  @Input() headerHeight: number;
+//</editor-fold>
+//////////////////////Host//////////////////////////////////////
+
+
+
+//////////////////////Sort//////////////////////////////////////
+//<editor-fold desc="Sort">
+  private _sorts: any[];
+  @Input() set sorts(val: any[]) {
+    this._sorts = val;
+    this.sortDir = this.calcSortDir(val);
+    this.cellContext.sortDir = this.sortDir;
+    this.sortClass = this.calcSortClass(this.sortDir);
+    this.cd.markForCheck();
+  }
+  get sorts(): any[] {
+    return this._sorts;
+  }
+
+  calcSortDir(sorts: any[]): any {
+    if (sorts && this.column) {
+      const sort = sorts.find((s: any) => {
+        return s.prop === this.column.prop;
+      });
+
+      if (sort) return sort.dir;
+    }
+  }
+
+  @Input() sortType: SortType;
+  sortDir: SortDirection;
+  onSort(): void {
+    if (!this.column.sortable) return;
+
+    const newValue = nextSortDir(this.sortType, this.sortDir);
+    this.sort.emit({
+      column: this.column,
+      prevValue: this.sortDir,
+      newValue
+    });
+  }
+
+//</editor-fold>
+//////////////////////Sort//////////////////////////////////////
 }

@@ -10,7 +10,7 @@ import {SelectionType} from './header/header.component';
 import {DimensionsHelper} from '../services/dimensions-helper.service';
 import {ScrollbarHelper} from '../services/scrollbar-helper.service';
 import {adjustColumnWidths, forceFillColumnWidths} from '../utils/math';
-import {TableColumn} from '../types/table-column.type';
+import {SortType, TableColumn} from '../types/table-column.type';
 import {sortRows} from '../utils/sort';
 
 
