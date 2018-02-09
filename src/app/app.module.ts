@@ -3,14 +3,18 @@ import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
+import {VirtualScrollComponent} from './basic/virtual.component';
+import {DatatableModule} from '../components/datatable.module';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    VirtualScrollComponent,
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    DatatableModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

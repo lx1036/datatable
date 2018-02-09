@@ -2,6 +2,16 @@
  * Column Type
  * @type {object}
  */
+import {ValueGetter} from '../utils/column-prop-getters';
+import {PipeTransform} from '@angular/core';
+
+/**
+ * Column property that indicates how to retrieve this column's
+ * value from a row.
+ * 'a.deep.value', 'normalprop', 0 (numeric)
+ */
+export type TableColumnProp = string|number;
+
 export interface TableColumn {
 
   /**

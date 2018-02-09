@@ -25,6 +25,7 @@ export class VisibilityDirective implements OnInit, OnDestroy {
   constructor(private element: ElementRef, private zone: NgZone) { }
 
   ngOnInit(): void {
+    console.log('xx');
     this.runCheck();
   }
 
@@ -32,6 +33,8 @@ export class VisibilityDirective implements OnInit, OnDestroy {
     const check = () => {
       // https://davidwalsh.name/offsetheight-visibility
       const { offsetHeight, offsetWidth } = <HTMLElement>this.element.nativeElement;
+
+      console.log(offsetHeight && offsetWidth);
 
       if (offsetHeight && offsetWidth) {
         this.onVisibilityChange();

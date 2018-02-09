@@ -38,19 +38,19 @@ export class ResizeableDirective implements OnDestroy, AfterViewInit {
     const initialWidth = this.element.clientWidth;
     const mouseDownScreenX = event.screenX;
 
-    if (isHandle) {
-      event.stopPropagation();
-      this.resizing = true;
-
-      const mouseup = fromEvent(document, 'mouseup');
-      this.subscription = mouseup
-        .subscribe((ev: MouseEvent) => this.onMouseup());
-
-      const mouseMoveSub = fromEvent(document, 'mousemove')
-        .pipe(takeUntil(mouseup))
-        .subscribe((e: MouseEvent) => this.move(e, initialWidth, mouseDownScreenX));
-
-      this.subscription.add(mouseMoveSub);
-    }
+    // if (isHandle) {
+    //   event.stopPropagation();
+    //   this.resizing = true;
+    //
+    //   const mouseup = fromEvent(document, 'mouseup');
+    //   this.subscription = mouseup
+    //     .subscribe((ev: MouseEvent) => this.onMouseup());
+    //
+    //   const mouseMoveSub = fromEvent(document, 'mousemove')
+    //     .pipe(takeUntil(mouseup))
+    //     .subscribe((e: MouseEvent) => this.move(e, initialWidth, mouseDownScreenX));
+    //
+    //   this.subscription.add(mouseMoveSub);
+    // }
   }
 }

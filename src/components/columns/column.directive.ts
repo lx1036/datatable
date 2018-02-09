@@ -1,6 +1,7 @@
 import {ContentChild, Directive, Input, TemplateRef} from '@angular/core';
 import {DataTableColumnCellDirective} from './column-cell.directive';
 import {DataTableColumnHeaderDirective} from './column-header.directive';
+import {TableColumnProp} from '../../types/table-column.type';
 
 @Directive({
   selector: 'lx-datatable-column'
@@ -19,10 +20,3 @@ export class DataTableColumnDirective {
   @ContentChild(DataTableColumnHeaderDirective, { read: TemplateRef })
   headerTemplate: TemplateRef<any>;
 }
-
-/**
- * Column property that indicates how to retrieve this column's
- * value from a row.
- * 'a.deep.value', 'normalprop', 0 (numeric)
- */
-export type TableColumnProp = string|number;
